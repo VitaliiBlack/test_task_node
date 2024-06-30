@@ -49,7 +49,6 @@ project-root/
 │   │   ├── cashOutNaturalConfig.js
 │   │   └── cashOutJuridicalConfig.js
 │   ├── services/
-│   │   ├── cacheService.js
 │   │   └── transactionService.js
 │   ├── types/
 │   │   └── index.js
@@ -57,7 +56,6 @@ project-root/
 │   │   └── index.js
 │   └── app.js
 ├── tests/
-│   ├── cacheService.test.js
 │   └── transactionService.test.js
 ├── input.json
 ├── package.json
