@@ -24,38 +24,41 @@ class TransactionService {
    * @returns {Promise<number>}
    */
   calculateCommission(transaction) {
-    const operationType = transaction.type;
-    const userType = transaction.user_type;
-    const { amount } = transaction.operation;
-    const userId = transaction.user_id;
-    const date = new Date(transaction.date);
-    const weekNumber = getYearWeek(date);
+    const {
+      operation: { amount },
+      type,
+      date,
+      user_id,
+      user_type,
+    } = transaction;
 
-    if (!this.userCashOut[userId]) {
-      this.userCashOut[userId] = {};
+    const weekNumber = getYearWeek(new Date(date));
+
+    if (!this.userCashOut[user_id]) {
+      this.userCashOut[user_id] = {};
     }
-    if (!this.userCashOut[userId][weekNumber]) {
-      this.userCashOut[userId][weekNumber] = 0;
+    if (!this.userCashOut[user_id][weekNumber]) {
+      this.userCashOut[user_id][weekNumber] = 0;
     }
 
     let commission = 0;
 
-    if (operationType === 'cash_in') {
+    if (type === 'cash_in') {
       commission = Math.min(
         amount * (this.cashInConfig.percents / 100),
         this.cashInConfig.max.amount,
       );
-    } else if (operationType === 'cash_out') {
-      if (userType === 'natural') {
-        const weekAmount = this.userCashOut[userId][weekNumber];
+    } else if (type === 'cash_out') {
+      if (user_type === 'natural') {
+        const weekAmount = this.userCashOut[user_id][weekNumber];
         const freeAmount = Math.max(
           this.cashOutNaturalConfig.week_limit.amount - weekAmount,
           0,
         );
         const taxableAmount = Math.max(amount - freeAmount, 0);
         commission = taxableAmount * (this.cashOutNaturalConfig.percents / 100);
-        this.userCashOut[userId][weekNumber] += amount;
-      } else if (userType === 'juridical') {
+        this.userCashOut[user_id][weekNumber] += amount;
+      } else if (user_type === 'juridical') {
         commission = Math.max(
           amount * (this.cashOutJuridicalConfig.percents / 100),
           this.cashOutJuridicalConfig.min.amount,
@@ -82,5 +85,8 @@ class TransactionService {
 const transactionServiceInstance = new TransactionService();
 export default transactionServiceInstance;
 
-// export for testing not use in production
+/**
+ * export only for testing purposes
+ * @type {TransactionService}
+ */
 export { TransactionService };
